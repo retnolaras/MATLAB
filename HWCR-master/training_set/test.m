@@ -1,13 +1,6 @@
 disp('testing')
-  load ('D:\training_set\featureout.mat');
+  load ('featureout.mat');
   p=featureout;
- % p=p';
- % save('D:\final\project demo april 7\New folder (2)\test code(segmentation)\featureout.mat','featureout','-append');
-  %end
-  %p=premnmx(p);
-  %p;
- % p=p';
-  %p;
 
   net.inputs{1}.processFcns = {'removeconstantrows','mapminmax'};
 load d:\training_set\net.mat;
@@ -20,14 +13,11 @@ load net;
 
  % y5=y5'
  disp(y5);
+ save('y5', 'y5');
  [C I]=max(y5);
  disp(I)
  disp(C)
  
-  %disp('1.A   2.B   3.C  4.D  5.E 6.F 7.G ')   
- 
-  
-%   fid = fopen('D:\training_set\output.txt','a');
 fid = fopen('output.txt','a');
 
   

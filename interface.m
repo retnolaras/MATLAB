@@ -82,7 +82,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-end
+
 
  
 
@@ -102,22 +102,64 @@ figure(1)
 imshow(imagen);
 title('INPUT IMAGE WITH NOISE')
 %% Convert to gray scale
+if size(imagen,3)==3 % RGB image
+    imagen=rgb2gray(imagen);
+end
 %% Convert to binary image
+threshold = graythresh(imagen);
+imagen =~im2bw(imagen,threshold);
 
 %% Remove all object containing fewer than 30 pixels
+imagen =bwareaopen(imagen,15);
+pause(1)
 %% Show image binary image
 figure(2)
 imshow(imagen);
 title('INPUT IMAGE WITHOUT NOISE')
 %% Edge detection
+Iedge = edge(uint8(imagen));
+imshow(~Iedge)
 %% Morphology
 % * *Image Dilation*
+se = strel('square',3);
+Iedge2 = imdilate(Iedge, se); 
+figure(3)
+imshow(~Iedge2);
+title('IMAGE DILATION')
 % * *Image Filling*
 
+Ifill= imfill(Iedge2,'holes');
+
+figure(4)
+
+imshow(~Ifill)
+title('IMAGE FILLING')
+Ifill=Ifill & imagen;
+figure(5)
+imshow(~Ifill);
+
+re=Ifill;
+
+
+while 1
+    %Fcn 'lines' separate lines in text
+    [fl re]=lines(re);
+    imgn=fl;
+    
+    % Label and count connected components
+    [L Ne] = bwlabel(imgn);    
+    %Uncomment line below to see lines one by one
+    %imshow(fl);pause(0.5)    
+
 %rotation
-
+%figure(7);
+%Irot=imrotate(Ifill,45);
+%imshow(Irot);
+%title('rotation');
 %% Label connected components
+%[L Ne]=bwlabel(Ifill);
 
+set(handles.text11, 'String',Ne);
 
 %% Measure properties of image regions
 %propied=regionprops(L,'BoundingBox');
@@ -142,11 +184,11 @@ for n=1:Ne
   popupmenu5value = contents{get(handles.popupmenu5,'Value')};
   switch popupmenu5value
       case 'Train using Neural Network'
-        z=feature_extractor_NN(z);
+        z=feature_extract(z);
       case 'Train using Bagged Decision Tree'
-        z=feature_extractor_BDT(z);
+        z=feature_extractor(z);
       case 'Train using Bagged Neural Network'
-        z=feature_extractor_BNN(z);
+        z=feature_extractor(z);
    end
     load ('D:\training_set\featureout.mat');
     featureout=z;
@@ -165,9 +207,10 @@ winopen('D:\training_set\output.txt');
 
 close (gcbf)
 interface
-end
+
 
 %set(handles.pushbutton9,'Enable','on')
+
 
 
 % --- Executes on button press in pushbutton3.
@@ -175,14 +218,14 @@ function pushbutton3_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton3 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-end
+
 
 % --- Executes on button press in pushbutton4.
 function pushbutton4_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-end
+
 
 
 % --------------------------------------------------------------------
@@ -191,6 +234,7 @@ function Menu_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
 % --- Executes on button press in pushbutton6.
 function pushbutton12_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton6 (see GCBO)
@@ -198,25 +242,101 @@ function pushbutton12_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 %% reading the image from the user
 
-% [filename, pathname] = ...
-%      uigetfile({'*.jpg';'*.jpeg';'*.png';'*.*'},'Select Image File');
-%  I=strcat(pathname,filename); 
-% 
-%    
-%  %  figure(1);
-%  %imshow(I);
-% axes(handles.axes6);
-% imshow(I);
-% set(handles.pushbutton13,'Enable','on')
-% 
-% helpdlg('Image has been Loaded Successfully. Choose an algorithm and train the network  ',...
-%         'Load Image');
-end
+[filename, pathname] = ...
+     uigetfile({'*.jpg';'*.jpeg';'*.png';'*.*'},'Select Image File');
+ I=strcat(pathname,filename); 
+
+   
+  %  figure(1);
+ %imshow(I);
+axes(handles.axes6);
+imshow(I);
+set(handles.pushbutton13,'Enable','on')
+
+helpdlg('Image has been Loaded Successfully. Choose an algorithm and train the network  ',...
+        'Load Image');
+
+
  
 
 
 
 
+% --- Executes during object creation, after setting all properties.
+function axes3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axes3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+axis on
+% Hint: place code in OpeningFcn to populate axes3
+
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function axes4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to axes4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+axis on
+% Hint: place code in OpeningFcn to populate axes4
+
+
+
+function edit2_Callback(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit2 as text
+%        str2double(get(hObject,'String')) returns contents of edit2 as a double
+disp(Ne);
+
+% --- Executes during object creation, after setting all properties.
+function edit2_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
 
 
 % --- Executes during object creation, after setting all properties.
@@ -224,7 +344,7 @@ function text8_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to text8 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
-end
+
 
 % --- Executes on button press in pushbutton10.
 function pushbutton13_Callback(hObject, eventdata, handles)
@@ -234,36 +354,120 @@ function pushbutton13_Callback(hObject, eventdata, handles)
 contents = get(handles.popupmenu5,'String'); 
   popupmenu5value = contents{get(handles.popupmenu5,'Value')};
   switch popupmenu5value
-      case 'Train using Neural Network'
+      case 'Train using Gradient Technique'
         train
-        helpdlg('Network has been trained using Neural Network. Click on "Extract Text" to process the image',...
+        helpdlg('Network has been trained using Gradient technique. Click on "Extract Text" to process the image',...
         'Training Successfull');
-      case 'Train using Bagged Decision Tree'
+      case 'Train using Geometric Feature Extraction'
         geo_train
-        helpdlg('Network has been trained using Bagged Decision Tree. Click on "Extract Text" to process the image',...
+        helpdlg('Network has been trained using Geometric Feature Extraction. Click on "Extract Text" to process the image',...
         'Training Successfull');
-    case 'Train using Bagged Neural Network'
-        geo_train
-        helpdlg('Network has been trained using Bagged Neural Network. Click on "Extract Text" to process the image',...
+    case 'Train using KNN'
+        trainknn
+        helpdlg('Train using KNN. Click on "Extract Text" to process the image',...
         'Training Successfull');
   end
+  
     set(handles.pushbutton11,'Enable','on')
-end
+
+
+
+% --- Executes on selection change in popupmenu4.
+function popupmenu4_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu4 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu4
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu4_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu4 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
 end
 
 
 % --------------------------------------------------------------------
-% function Help_Callback(hObject, eventdata, handles)
-% % hObject    handle to Help (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% open ReadMe.pdf
+function Exit_Callback(hObject, eventdata, handles)
+% hObject    handle to Exit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+conf=questdlg('Are you sure you want to Exit','Exit Image','Yes','No','No');
+switch conf
+    case 'Yes'
+        close(gcf)
+    case 'No'
+        return
+end
+
 
 
 % --------------------------------------------------------------------
-% function About_us_Callback(hObject, eventdata, handles)
-% % hObject    handle to About_us (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% open aboutus.fig
+function Help_Callback(hObject, eventdata, handles)
+% hObject    handle to Help (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+open ReadMe.pdf
 
+
+% --------------------------------------------------------------------
+function About_us_Callback(hObject, eventdata, handles)
+% hObject    handle to About_us (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+open aboutus.fig
+
+
+
+
+
+% --- Executes on selection change in popupmenu5.
+function popupmenu5_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu5 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu5
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu5_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu5 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes when uipanel6 is resized.
+function uipanel6_ResizeFcn(hObject, eventdata, handles)
+% hObject    handle to uipanel6 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes when figure1 is resized.
+function figure1_ResizeFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on mouse press over figure background.
+function figure1_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
