@@ -109,11 +109,8 @@ end
 threshold = graythresh(imagen);
 imagen =~im2bw(imagen,threshold);
 
-%% Remove all object containing fewer than 30 pixels
-imagen =bwareaopen(imagen,15);
-pause(1)
 %% Show image binary image
-figure(2)
+figure
 imshow(imagen);
 title('INPUT IMAGE WITHOUT NOISE')
 %% Edge detection
@@ -121,28 +118,27 @@ Iedge = edge(uint8(imagen));
 imshow(~Iedge)
 %% Morphology
 % * *Image Dilation*
-se = strel('square',3);
-Iedge2 = imdilate(Iedge, se); 
-figure(3)
-imshow(~Iedge2);
-title('IMAGE DILATION')
-% * *Image Filling*
+% se = strel('square',4);
+% Iedge2 = imdilate(Iedge, se); 
+% figure
+% imshow(~Iedge2);
+% title('IMAGE DILATION')
+% % * *Image Filling*
+% 
+% Ifill= imfill(Iedge2,'holes');
+% 
+% figure(4)
+% 
+% imshow(~Ifill)
+% title('IMAGE FILLING')
+% Ifill=Ifill & imagen;
+% figure(5)
+% imshow(~Ifill);
+% 
+% re=Ifill;
 
-Ifill= imfill(Iedge2,'holes');
-
-figure(4)
-
-imshow(~Ifill)
-title('IMAGE FILLING')
-Ifill=Ifill & imagen;
-figure(5)
-imshow(~Ifill);
-
-re=Ifill;
 
 
-
-while 1
 %     %Fcn 'lines' separate lines in text
 %     [fl re]=lines(re);
 %     imgn=fl;
@@ -157,8 +153,8 @@ while 1
 %Irot=imrotate(Ifill,45);
 %imshow(Irot);
 %title('rotation');
-%% Label connected components
-[L Ne]=bwlabel(Ifill);
+% %% Label connected components
+% [L Ne]=bwlabel(Ifill);
 
 % set(handles.text11, 'String',Ne);
 
@@ -174,37 +170,40 @@ while 1
 %pause (1)
 %% Objects extraction
 % axes(handles.axes5);
-for n=1:Ne
-    [r,c] = find(L==n);
+% for n=1:Ne
+%     [r,c] = find(L==n);
 %     n1=imgn(min(r):max(r),min(c):max(c));
-n1=re(min(r):max(r),min(c):max(c));
+% n1=re(min(r):max(r),min(c):max(c));
    %imshow(~n1);
-    BW2 = bwmorph(n1,'thin',Inf);
-    imrotate(BW2,0);
-    imshow(~BW2);
+    BW2 = bwmorph(imagen,'thin',Inf);
+%     imrotate(BW2,0);
+%     imshow(~BW2);
     z=imresize(BW2,[50 50]);
     contents = get(handles.popupmenu5,'String'); 
   popupmenu5value = contents{get(handles.popupmenu5,'Value')};
   switch popupmenu5value
       case 'Train using Neural Network'
-        z=feature_extractor_n(z);
+          zp = pca(BW2);
+%         z=feature_extractor_n(re);
       case 'Train using Bagged Decision Tree'
         z=feature_extractor_n(z);
       case 'Train using Ensemble Neural Network'
         z=feature_extractor_n(z);
    end
-    load ('featureout.mat');
-    featureout=z;
+%     load ('featureout.mat');
+    featureout=zp(:,1:50);
     %disp(z);
     save ('featureout.mat','featureout');
-    testnn
+    
     
     pause(0.5);
-end
-if isempty(re)  %See variable 're' in Fcn 'lines'
-        break
-    end    
-end
+% end
+
+testnn
+
+% if isempty(re)  %See variable 're' in Fcn 'lines'
+%         break
+%     end    
 % clear all
 macopen('output.txt');
 
@@ -362,7 +361,7 @@ contents = get(handles.popupmenu5,'String');
   switch popupmenu5value
       case 'Train using Neural Network'
 %         train_nn
-digitrec
+digitrecnn
         helpdlg('Network has been trained. Click on "Recognise Digit" to process the image',...
         'Training Successfull');
       case 'Train using Bagged Decision Tree'

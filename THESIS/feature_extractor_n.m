@@ -1,6 +1,4 @@
 % this function is supposed to extract features from the input image
-%% this function divides the image into 1x3 zone and then extracts the
-%% features then it divides into 3x1 zone and then extracts the features
 function [features]=feature_extractor_n(image);
 % this function zones the input image
 % and extracts features for each zone.
@@ -81,43 +79,78 @@ column=size(image,2); %updating the column value
 % of zeros are to be added then one on either side of the image and
 % similarily for columns.
 
-column_zone_height=row;
-column_zone_width=column/4;
-%say at this point image is 12x9, so no.of rows in each column zone should be
-%12, whereas columns should be 9/3=3. This is stored in variables zone
+zone_height=row/4;
+zone_width=column/4;
+%say at this point image is 12x9, so no.of rows in each zone should be
+%12/3=4, whereas columns should be 9/3=3. This is stored in variables zone
 %height and width
-column_zone1=image(1:column_zone_height,1:column_zone_width);
-column_zone2=image(1:column_zone_height,(column_zone_width+1):2*column_zone_width);
-column_zone3=image(1:column_zone_height,(2*column_zone_width+1):3*column_zone_width);
-column_zone4=image(1:column_zone_height,(3*column_zone_width+1):end);
+zone11=image(1:zone_height,1:zone_width);
+zone12=image(1:zone_height,(zone_width+1):2*zone_width);
+zone13=image(1:zone_height,(2*zone_width+1):3*zone_width);
+zone14=image(1:zone_height,(3*zone_width+1):end);
 
-row_zone_height=row/4;
-row_zone_width=column;
+zone21=image((zone_height+1):2*zone_height,1:zone_width);
+zone22=image((zone_height+1):2*zone_height,(zone_width+1):2*zone_width);
+zone23=image((zone_height+1):2*zone_height,(2*zone_width+1):3*zone_width);
+zone24=image((zone_height+1):2*zone_height,(3*zone_width+1):end);
 
-row_zone1=image(1:row_zone_height,1:row_zone_width);
-row_zone2=image((row_zone_height+1):2*row_zone_height,1:row_zone_width);
-row_zone3=image((2*row_zone_height+1):3*row_zone_height,1:row_zone_width);
-row_zone4=image((3*row_zone_height+1):end,1:row_zone_width);
+zone31=image((2*zone_height+1):3*zone_height,1:zone_width);
+zone32=image((2*zone_height+1):3*zone_height,(zone_width+1):2*zone_width);
+zone33=image((2*zone_height+1):3*zone_height,(2*zone_width+1):3*zone_width);
+zone34=image((2*zone_height+1):3*zone_height,(3*zone_width+1):end);
 
+zone41=image((3*zone_height+1):end,1:zone_width);
+zone42=image((3*zone_height+1):end,(zone_width+1):2*zone_width);
+zone43=image((3*zone_height+1):end,(2*zone_width+1):3*zone_width);
+zone44=image((3*zone_height+1):end,(3*zone_width+1):end);
 
 % feature_vectors
-column_zone1_features=lineclassifier(column_zone1);
-column_zone2_features=lineclassifier(column_zone2);
-column_zone3_features=lineclassifier(column_zone3);
-column_zone4_features=lineclassifier(column_zone4);
+zone11_features=imresize(extractHOGFeatures(zone11), [4 4]);
+zone12_features=imresize(extractHOGFeatures(zone12), [4 4]);
+zone13_features=imresize(extractHOGFeatures(zone13), [4 4]);
+zone14_features=imresize(extractHOGFeatures(zone14), [4 4]);
 
+zone21_features=imresize(extractHOGFeatures(zone21), [4 4]);
+zone22_features=imresize(extractHOGFeatures(zone22), [4 4]);
+zone23_features=imresize(extractHOGFeatures(zone23), [4 4]);
+zone24_features=imresize(extractHOGFeatures(zone24), [4 4]);
 
-row_zone1_features=lineclassifier(row_zone1);
-row_zone2_features=lineclassifier(row_zone2);
-row_zone3_features=lineclassifier(row_zone3);
-row_zone4_features=lineclassifier(row_zone4);
+zone31_features=imresize(extractHOGFeatures(zone31), [4 4]);
+zone32_features=imresize(extractHOGFeatures(zone32), [4 4]);
+zone33_features=imresize(extractHOGFeatures(zone33), [4 4]);
+zone34_features=imresize(extractHOGFeatures(zone34), [4 4]);
 
+zone41_features=imresize(extractHOGFeatures(zone41), [4 4]);
+zone42_features=imresize(extractHOGFeatures(zone42), [4 4]);
+zone43_features=imresize(extractHOGFeatures(zone43), [4 4]);
+zone44_features=imresize(extractHOGFeatures(zone44), [4 4]);
+
+% zone11_features=extractHOGFeatures(zone11);
+% zone12_features=extractHOGFeatures(zone12);
+% zone13_features=extractHOGFeatures(zone13);
+% zone14_features=extractHOGFeatures(zone14);
+% 
+% zone21_features=extractHOGFeatures(zone21);
+% zone22_features=extractHOGFeatures(zone22);
+% zone23_features=extractHOGFeatures(zone23);
+% zone24_features=extractHOGFeatures(zone24);
+% 
+% zone31_features=extractHOGFeatures(zone31);
+% zone32_features=extractHOGFeatures(zone32);
+% zone33_features=extractHOGFeatures(zone33);
+% zone34_features=extractHOGFeatures(zone34);
+% 
+% zone41_features=extractHOGFeatures(zone41);
+% zone42_features=extractHOGFeatures(zone42);
+% zone43_features=extractHOGFeatures(zone43);
+% zone44_features=extractHOGFeatures(zone44);
 
 % this is a feature called euler no...euler no. is diff between no.of
 % objects and holes in that image
 euler=bweuler(image);
-features=[column_zone1_features;column_zone2_features;column_zone3_features;column_zone4_features;row_zone1_features;row_zone2_features;row_zone3_features;row_zone4_features];
-features=[reshape(features',numel(features),1);euler];
+features=[zone11_features;zone12_features;zone13_features;zone14_features;zone21_features;zone22_features;zone23_features;zone24_features;
+    zone31_features;zone32_features;zone33_features;zone34_features;zone41_features;zone42_features;zone43_features;zone44_features];
+% features=[reshape(features',numel(features)),euler];
 
 % here the region properties of the image are going to be considered
 stats=regionprops(bwlabel(image),'all');
@@ -139,7 +172,9 @@ extent=stats.Extent;
 orientation =stats.Orientation;
 
 % this are the regional features
-regional_features=[eccentricity;extent;orientation];
+regional_features=[eccentricity;extent;orientation;0];
+
+% features=[features;regional_features];                      % I CHANGED HERE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 % now the previous geometric and this regional features have to be combined
 %features=[features;regional_features];

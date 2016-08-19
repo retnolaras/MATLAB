@@ -86,33 +86,50 @@ zone_width=column/4;
 %height and width
 zone11=image(1:zone_height,1:zone_width);
 zone12=image(1:zone_height,(zone_width+1):2*zone_width);
-zone13=image(1:zone_height,(2*zone_width+1):end);
+zone13=image(1:zone_height,(2*zone_width+1):3*zone_width);
+zone14=image(1:zone_height,(3*zone_width+1):end);
 
 zone21=image((zone_height+1):2*zone_height,1:zone_width);
 zone22=image((zone_height+1):2*zone_height,(zone_width+1):2*zone_width);
-zone23=image((zone_height+1):2*zone_height,(2*zone_width+1):end);
+zone23=image((zone_height+1):2*zone_height,(2*zone_width+1):3*zone_width);
+zone24=image((zone_height+1):2*zone_height,(3*zone_width+1):end);
 
-zone31=image((2*zone_height+1):end,1:zone_width);
-zone32=image((2*zone_height+1):end,(zone_width+1):2*zone_width);
-zone33=image((2*zone_height+1):end,(2*zone_width+1):end);
+zone31=image((2*zone_height+1):3*zone_width,1:zone_width);
+zone32=image((2*zone_height+1):3*zone_width,(zone_width+1):2*zone_width);
+zone33=image((2*zone_height+1):3*zone_width,(2*zone_width+1):3*zone_width);
+zone34=image((2*zone_height+1):3*zone_width,(3*zone_width+1):end);
+
+zone41=image((3*zone_height+1):end,1:zone_width);
+zone42=image((3*zone_height+1):end,(zone_width+1):2*zone_width);
+zone43=image((3*zone_height+1):end,(2*zone_width+1):3*zone_width);
+zone44=image((3*zone_height+1):end,(3*zone_width+1):end);
 
 % feature_vectors
 zone11_features=lineclassifier(zone11);
 zone12_features=lineclassifier(zone12);
 zone13_features=lineclassifier(zone13);
+zone14_features=lineclassifier(zone14);
 
 zone21_features=lineclassifier(zone21);
 zone22_features=lineclassifier(zone22);
 zone23_features=lineclassifier(zone23);
+zone24_features=lineclassifier(zone24);
 
 zone31_features=lineclassifier(zone31);
 zone32_features=lineclassifier(zone32);
 zone33_features=lineclassifier(zone33);
+zone34_features=lineclassifier(zone34);
+
+zone41_features=lineclassifier(zone41);
+zone42_features=lineclassifier(zone42);
+zone43_features=lineclassifier(zone43);
+zone44_features=lineclassifier(zone44);
 
 % this is a feature called euler no...euler no. is diff between no.of
 % objects and holes in that image
 euler=bweuler(image);
-features=[zone11_features;zone12_features;zone13_features;zone21_features;zone22_features;zone23_features;zone31_features;zone32_features;zone33_features];
+features=[zone11_features;zone12_features;zone13_features;zone14_features;zone21_features;zone22_features;zone23_features;zone24_features;
+    zone31_features;zone32_features;zone33_features;zone34_features;zone41_features;zone42_features;zone43_features;zone44_features];
 features=[reshape(features',numel(features),1);euler];
 
 % here the region properties of the image are going to be considered
